@@ -25,8 +25,8 @@ const selectedNotif = await arg(
 
 dev(selectedNotif);
 
-const d = await get(selectedNotif.url, {
-  headers,
-});
+// const d = await get(selectedNotif.url, {
+//   headers,
+// });
 
 // browse(selectedNotif, { headers });
