@@ -4,7 +4,6 @@
 
 import "@johnlindquist/kit";
 import { lstatSync } from "fs";
-const glob = await npm("glob");
 
 const toCrawl = ["GitHub", "Playground", "DeleteMe", [".kenv", ["scripts"]]];
 
