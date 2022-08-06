@@ -114,31 +114,19 @@ switch (todo.action) {
   // Open repo on GitHub.com
   case ACTIONS.repo:
     try {
-      const paks = await new Promise((res, rej) => {
-        glob(
-          "**/package.json",
-          { cwd: selectedDir, ignore: "**/node_modules/**/*" },
-          (err, files) => {
-            if (err) rej(err);
-            res(files);
-          }
+      await cd(selectedDir);
+      const url = (await $`git config --get remote.origin.url`).stdout;
+      const newUrl = url
+        .replace(/\n/g, "")
+        .replace(
+          /^git@(?<base>.*):(?<org>.*)\/(?<repo>.*)\.git$/,
+          "https://$1/$2/$3"
         );
-      }).then((ps) =>
-        Promise.all(ps.map((p) => readJson(path.join(selectedDir, p))))
-      );
 
-      const paksWithRepo = _.uniqBy(
-        paks.map((pak) => pak?.repository?.url).filter(Boolean),
-        (i) => i
-      );
-
-      if (paksWithRepo.length === 1) {
-        await browse(paksWithRepo[0]);
-      } else if (paksWithRepo.length > 1) {
-        const selectedUrl = await arg(`Which URL?`, paksWithRepo);
-        await browse(selectedUrl);
-      }
-    } catch {}
+      await browse(newUrl);
+    } catch (err) {
+      dev(err.message);
+    }
     break;
   case ACTIONS.iterm:
     await $`open -a iTerm ${selectedDir}`;
