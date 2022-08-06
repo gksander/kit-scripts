@@ -1,4 +1,6 @@
 // Name: project
+// Author: Grant Sander
+// Shortcut: opt p
 
 import "@johnlindquist/kit";
 import { lstatSync } from "fs";
@@ -39,52 +41,53 @@ const selectedDir = await arg(
 );
 
 // What can we do?
-const actions = [];
 const ACTIONS = {
   ws: "WS",
   vsc: "VSC",
   copy: "COPY",
   embedded_terminal: "EMBEDDED_TERMINAL",
-  iterm: "ITERM", // TODO: Do this!
-  quick_edit: "QUICK_EDIT", // TODO: Do this!
+  iterm: "ITERM",
   repo: "REPO",
+  ghd: "GITHUB_DESKTOP",
 };
 
-// WS
-actions.push({
-  name: "Open in [W]ebStorm",
-  description: "Open project in WebStorm",
-  value: { action: ACTIONS.ws },
-});
-// VSC
-actions.push({
-  name: "Open in [V]SCode",
-  description: "Open project in VSCode",
-  value: { action: ACTIONS.vsc },
-});
-// Copy
-actions.push({
-  name: "[C]opy path",
-  description: "Copy the path",
-  value: { action: ACTIONS.copy },
-});
-// Terminal
-actions.push({
-  name: "Embedded [t]erminal",
-  description: "Open project in embedded terminal",
-  value: { action: ACTIONS.embedded_terminal },
-});
-// Package.json
-actions.push({
-  name: "Open [R]epo on GitHub.com",
-  description: "Open in GitHub.com",
-  value: { action: ACTIONS.repo },
-});
-actions.push({
-  name: "[Q]uick edit file",
-  description: "Quick edit a file",
-  value: { action: ACTIONS.quick_edit },
-});
+const actions = [
+  {
+    name: "Open in [W]ebStorm",
+    description: "Open project in WebStorm",
+    value: { action: ACTIONS.ws },
+  },
+  {
+    name: "Open in [V]SCode",
+    description: "Open project in VSCode",
+    value: { action: ACTIONS.vsc },
+  },
+  {
+    name: "[C]opy path",
+    description: "Copy the path",
+    value: { action: ACTIONS.copy },
+  },
+  {
+    name: "Embedded [t]erminal",
+    description: "Open project in embedded terminal",
+    value: { action: ACTIONS.embedded_terminal },
+  },
+  {
+    name: "Open with [i]Term",
+    description: "Open with iTerm",
+    value: { action: ACTIONS.iterm },
+  },
+  {
+    name: "Open [R]epo on GitHub.com",
+    description: "Open in GitHub.com",
+    value: { action: ACTIONS.repo },
+  },
+  {
+    name: "Open in [G]itHub Desktop",
+    description: "Open in GitHub Desktop",
+    value: { action: ACTIONS.ghd },
+  },
+];
 
 const todo = await arg({ placeholder: "What do you want to do?" }, actions);
 
@@ -137,40 +140,10 @@ switch (todo.action) {
       }
     } catch {}
     break;
-
-  // Quick-edit a file
-  case ACTIONS.quick_edit:
-    try {
-      await cd(selectedDir);
-      const files = await $`git ls-tree -r HEAD --name-only`;
-
-      const fileToEdit = await arg(
-        { placeholder: "Which file do you want to edit?" },
-        files.stdout.split("\n").map((p) => {
-          return {
-            name: p,
-            description: path.join(selectedDir, p),
-            value: path.join(selectedDir, p),
-          };
-        })
-      );
-
-      const ext = path.extname(fileToEdit);
-      console.log(ext);
-
-      const content = await readFile(fileToEdit);
-
-      await editor({
-        value: content,
-        onInput: _.debounce(async (input) => {
-          await writeFile(fileToEdit, input);
-        }, 1000),
-      });
-
-      // echo`Files are ${files}`;
-      // await dev(files);
-    } catch (err) {
-      console.log("ERR!", err.message);
-    }
+  case ACTIONS.iterm:
+    await $`open -a iTerm ${selectedDir}`;
+    break;
+  case ACTIONS.ghd:
+    await $`github ${selectedDir}`;
     break;
 }
