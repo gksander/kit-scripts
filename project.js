@@ -48,6 +48,7 @@ const ACTIONS = {
   iterm: "ITERM",
   repo: "REPO",
   ghd: "GITHUB_DESKTOP",
+  finder: "FINDER",
 };
 
 const actions = [
@@ -85,6 +86,11 @@ const actions = [
     name: "Open in [G]itHub Desktop",
     description: "Open in GitHub Desktop",
     value: { action: ACTIONS.ghd },
+  },
+  {
+    name: "Reveal in [F]inder",
+    description: "Reveal project in Finder",
+    value: { action: ACTIONS.finder },
   },
 ];
 
@@ -132,5 +138,8 @@ switch (todo.action) {
     break;
   case ACTIONS.ghd:
     await $`github ${selectedDir}`;
+    break;
+  case ACTIONS.finder:
+    await revealInFinder(selectedDir);
     break;
 }
