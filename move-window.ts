@@ -22,7 +22,8 @@ let padding = 100;
 //   bottom,
 // });
 
-console.log("THING!");
+const key = await keystroke("f");
+dev(key);
 
 await arg("Which way", async (input) => {
   return `${input}`;
