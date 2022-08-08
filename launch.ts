@@ -8,24 +8,21 @@ import "@johnlindquist/kit";
 const appLocations = [
   "/Applications",
   home("Applications", "JetBrains Toolbox"),
-  // "/System",
 ];
 
-const apps = await Promise.all(
-  appLocations.map((loc) =>
-    fileSearch("", { onlyin: loc, kind: "application" })
-  )
-)
-  .then((locs) => _.uniq(locs.flat()))
-  .then((list) =>
-    list.map((name) => name.split("/").pop().replace(".app", ""))
-  );
+const trimName = (name: string) => name.split("/").pop().replace(".app", "");
 
-// Merge by app name
+const apps = await Promise.all(appLocations.map((loc) => readdir(loc)))
+  .then((locs) => locs.flat())
+  .then((list) => list.map(trimName))
+  .then((list) => _.uniq(list));
+
+const addedSystemApps = ["Finder", "Preview"];
 
 const selectedApp = await arg(
   { placeholder: "Which app?" },
   apps
+    .concat(addedSystemApps)
     .map((name) => {
       return {
         name,
@@ -42,12 +39,22 @@ const selectedApp = await arg(
     })
 );
 
-// const dbVal = appDb.data.apps.find((a) => a.name === selectedApp);
-// dbVal.lastUsed = Date.now();
-// await appDb.write();
-
 if (selectedApp === "s") {
-  await dev("hey");
+  const sysApps = await fileSearch("", {
+    onlyin: "/System",
+    kind: "application",
+  }).then((list) => list.map(trimName));
+
+  const sysApp = await arg(
+    { placeholder: "Which system app?" },
+    sysApps.map((name) => ({
+      name,
+      description: name,
+      value: name,
+    }))
+  );
+
+  await $`open -a ${sysApp}`;
 } else {
   await $`open -a ${selectedApp}`;
 }

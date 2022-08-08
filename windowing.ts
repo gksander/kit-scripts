@@ -1,5 +1,6 @@
 // name: windowing
 // Description: Move active window to left half
+// Shortcode: w
 
 import "@johnlindquist/kit";
 
@@ -35,11 +36,6 @@ const options: {
 const { left, right } = await arg(
   {
     placeholder: "Resize to...",
-    onShortcut: {
-      l: () => {
-        console.log("ON L");
-      },
-    },
   },
   options.map((op) => ({
     name: op.name,
