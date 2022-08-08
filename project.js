@@ -1,6 +1,7 @@
 // Name: project
 // Author: Grant Sander
 // Shortcut: opt p
+// Shortcode: p
 
 import "@johnlindquist/kit";
 import { lstatSync } from "fs";
