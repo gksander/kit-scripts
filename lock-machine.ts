@@ -1,4 +1,5 @@
-// Name: lock-machine
+// Name: Lock
+// Menu: Lock Screen
 
 import "@johnlindquist/kit";
 

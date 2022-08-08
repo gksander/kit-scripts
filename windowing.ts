@@ -33,6 +33,9 @@ const options: {
   { name: "Full", left: x, right: x + width },
 ];
 
+const previewWidth = 300;
+const previewHeight = (height / width) * previewWidth;
+
 const { left, right } = await arg(
   {
     placeholder: "Resize to...",
@@ -41,6 +44,14 @@ const { left, right } = await arg(
     name: op.name,
     value: op,
     shortcut: op.shortcut,
+    preview:
+      async () => `<div class="p-3 flex items-center justify-center h-full">
+      <svg viewbox="${x} ${y} ${width} ${height}" width="${previewWidth}" height="${previewHeight}" class="rounded shadow-lg overflow-hidden border-2">
+        <rect x="${op.left}" y="${y}" width="${
+        op.right - op.left
+      }" height="${height}" fill="purple" />
+      </svg>
+    </div>`,
   }))
 );
 
