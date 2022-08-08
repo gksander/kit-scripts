@@ -5,6 +5,7 @@
 
 import "@johnlindquist/kit";
 import { lstatSync } from "fs";
+import { lstat } from "fs/promises";
 
 const toCrawl = ["GitHub", "Playground", "DeleteMe", [".kenv", ["scripts"]]];
 
@@ -36,7 +37,47 @@ const selectedDir = await arg(
     name,
     description: path.join(root, name),
     value: path.join(root, name),
-    preview: md(`# ${name}\n## ${root}`),
+    preview: async () => {
+      try {
+        const p = path.join(root, name);
+        const fns = await readdir(p);
+
+        const els = await Promise.all(
+          fns.map(async (fn) => {
+            const isDir = await lstat(path.join(p, fn)).then((stat) =>
+              stat.isDirectory()
+            );
+
+            return { name: fn, isDir };
+          })
+        ).then((els) =>
+          els.sort((a, b) => {
+            if (a.isDir && !b.isDir) return -1;
+            if (b.isDir && !a.isDir) return 1;
+            return 0;
+          })
+        );
+
+        return `
+          <div class="p-3">
+            <p class="text-3xl font-bold mb-1">${name}</p>
+            <p class="text-lg font-medium mb-3">${p}</p>
+            <div class="text-sm">
+              ${els
+                .map(
+                  ({ name, isDir }) =>
+                    `<p class="${isDir ? "font-bold" : ""}">${name}${
+                      isDir ? "/" : ""
+                    }</p>`
+                )
+                .join("\n")}
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        return md(`# ${name}\n## ${root}`);
+      }
+    },
   }))
 );
 
